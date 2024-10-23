@@ -8,30 +8,25 @@ const db = new sqlite3.Database('./databases/expensesTracker.db', (err)=>{
     }
 })
 
-const initializeTables=()=>{
-    db.serialize(()=>{
-        db.run(
-            `CREATE TABLE IF NOT EXISTS transactions(
-            id TEXT PRIMARY KEY,
-            type TEXT NOT NULL,
-            category TEXT NOT NULL,
-            amount REAL NOT NULL,
-            date TEXT NOT NULL,
-            description TEXT NOT NULL
-            )`
-        )
+db.serialize(()=>{
+    db.run(
+        `CREATE TABLE IF NOT EXISTS transactions(
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        category TEXT NOT NULL,
+        amount REAL NOT NULL,
+        date TEXT NOT NULL,
+        description TEXT NOT NULL
+        )`
+    )
 
-        db.run(
-            `CREATE TABLE IF NOT EXISTS categories(
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            type TEXT NOT NULL
-            )`
-        )             
-    })
-}
+    db.run(
+        `CREATE TABLE IF NOT EXISTS categories(
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL
+        )`
+    )             
+})
 
-module.exports = {
-    db,
-    initializeTables
-}
+module.exports = db
