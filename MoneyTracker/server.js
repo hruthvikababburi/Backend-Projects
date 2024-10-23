@@ -9,6 +9,18 @@ const db = new sqlite3.Database('./databases/expensesTracker.db', (err)=>{
 })
 
 db.serialize(()=>{
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+      )`,(err)=>{
+        if(err){
+            console.log('Error creating table',err)
+        }
+        console.log('Users table is created and ready to use')
+    });
+
+
     db.run(
         `CREATE TABLE IF NOT EXISTS transactions(
         id TEXT PRIMARY KEY,

@@ -3,9 +3,10 @@ const router = express.Router()
 const {v4:uuidv4} = require('uuid')
 const db = require('../server')
 
+const authenticateToken = require('../middlewares/auth');
 
 
-router.post('/',(req,res)=>{
+router.post('/',authenticateToken,(req,res)=>{
     const {type,category,amount, date, description} = req.body
     const id = uuidv4()
     const sql = `INSERT INTO transactions(id,type,category,amount, date, description) VALUES (?,?,?,?,?,?)`;
@@ -19,7 +20,7 @@ router.post('/',(req,res)=>{
 
 })
 
-router.get('/',(req,res)=>{
+router.get('/',authenticateToken,(req,res)=>{
     const sql = `SELECT * FROM transactions`
     
     db.all(sql,[],(err,data)=>{
@@ -30,7 +31,7 @@ router.get('/',(req,res)=>{
     })
 })
 
-router.get('/:id',(req,res)=>{
+router.get('/:id',authenticateToken,(req,res)=>{
     const {id} = req.params;
     const sql = `SELECT * FROM transactions WHERE id = ?`;
 
@@ -45,7 +46,7 @@ router.get('/:id',(req,res)=>{
     })
 })
 
-router.put('/:id',(req,res)=>{
+router.put('/:id',authenticateToken,(req,res)=>{
     const {id} = req.params
     const {type,category,amount, date, description} = req.body
     const sql = `UPDATE transactions SET type=?, category=?, amount=?, date=?, description=? WHERE id=?`
@@ -61,7 +62,7 @@ router.put('/:id',(req,res)=>{
    })
 })
 
-router.delete('/:id',(req,res)=>{
+router.delete('/:id',authenticateToken,(req,res)=>{
     const {id}=req.params;
     const sql = `DELETE FROM transactions WHERE id = ?`;
 
@@ -75,25 +76,25 @@ router.delete('/:id',(req,res)=>{
         return res.status(200).json({message: "transaction deleted successfully!"})
     })
 })
-
-router.get('/summary',(req,res)=>{
+router.get('/summary', authenticateToken,(req, res) => {
     const sql = `SELECT 
-                    SUM(CASE WHEN type= "Income" THEN amount ELSE 0 END) AS totalIncome,
-                    SUM(CASE WHEN type= "Expenses" THEN amount ELSE 0 END) AS totalExpenses
+                    SUM(CASE WHEN type='Income' THEN amount ELSE 0 END) AS totalIncome,
+                    SUM(CASE WHEN type='Expenses' THEN amount ELSE 0 END) AS totalExpenses
                 FROM transactions`;
     
-    db.get(sql,[],(err,data)=>{
-        if(err){
-            return res.status(500).json({error: err.message})
+    db.get(sql, [], (err, data) => {
+        if (err) {
+            console.error("Database Error:", err);
+            return res.status(500).json({ error: err.message });
         }
-        const totalIncome = data.totalIncome || 0; // default to 0 if null
-        const totalExpenses = data.totalExpenses || 0; // default to 0 if null
+
+        console.log("Data:", data); // Log the retrieved data
+        const totalIncome = data.totalIncome || 0; // Default to 0 if null
+        const totalExpenses = data.totalExpenses || 0; // Default to 0 if null
         const balanceAmount = totalIncome - totalExpenses;
 
-       
-        res.status(200).json({totalIncome, totalExpenses, balanceAmount})
-    })            
-
-})
+        res.status(200).json({ totalIncome, totalExpenses, balanceAmount });
+    });
+});
 
 module.exports = router

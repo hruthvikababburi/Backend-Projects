@@ -10,9 +10,14 @@ app.use(cors())
 
 
 const PORT = process.env.PORT || 3000
+
+
+const transactionsRoutes = require('./routes/transactions')
+const userRoutes = require('./routes/users')
+app.use('./users',userRoutes)
+
+app.use('/transactions',transactionsRoutes)
+
 app.listen(PORT,()=>{
     console.log(`Server is running on port ${PORT}`)
 })
-
-const transactionsRoutes = require('./routes/transactions')
-app.use('/transactions',transactionsRoutes)
