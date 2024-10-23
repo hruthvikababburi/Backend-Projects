@@ -14,10 +14,15 @@ db.serialize(()=>{
         id TEXT PRIMARY KEY,
         type TEXT NOT NULL,
         category TEXT NOT NULL,
-        amount REAL NOT NULL,
+        amount INTEGER NOT NULL,
         date TEXT NOT NULL,
-        description TEXT NOT NULL
-        )`
+        description TEXT
+        )`,(err)=>{
+            if(err){
+                console.log('Error creating table',err)
+            }
+            console.log('Transactions table is created and ready to use')
+        }
     )
 
     db.run(
@@ -25,7 +30,12 @@ db.serialize(()=>{
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         type TEXT NOT NULL
-        )`
+        )`,(err)=>{
+            if(err){
+                console.log('Error creating table',err)
+            }
+            console.log('Categories table is created and ready to use')
+        }
     )             
 })
 
