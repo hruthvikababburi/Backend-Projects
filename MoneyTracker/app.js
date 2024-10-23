@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000
 
 const transactionsRoutes = require('./routes/transactions')
 const userRoutes = require('./routes/users')
-app.use('./users',userRoutes)
+app.use('/users',userRoutes)
 
 app.use('/transactions',transactionsRoutes)
 

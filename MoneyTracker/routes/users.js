@@ -12,26 +12,28 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 
 router.post('/signup', (req, res) => {
-  const { username, password } = req.body;
+    const { username, password } = req.body;
   
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
+      if (err) return res.status(500).json({ error: err.message });
   
-  bcrypt.hash(password, 10, (err, hashedPassword) => {
-    if (err) return res.status(500).json({ error: err.message });
-    
-    const userId = uuidv4();
-    const sql = `INSERT INTO users (id, username, password) VALUES (?, ?, ?)`;
-    
-    db.run(sql, [userId, username, hashedPassword], function(err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Username already exists' });
+      const userId = uuidv4();
+      const sql = `INSERT INTO users (id, username, password) VALUES (?, ?, ?)`;
+  
+      db.run(sql, [userId, username, hashedPassword], function(err) {
+        if (err) {
+          if (err.message.includes('UNIQUE constraint failed')) {
+            return res.status(400).json({ error: 'Username already exists' });
+          }
+          return res.status(500).json({ error: err.message });
         }
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(201).json({ message: "User registered successfully", userId });
+  
+        const token = jwt.sign({ userId, username }, SECRET_KEY, { expiresIn: '1h' });
+  
+        res.status(201).json({ message: "User registered successfully", userId, token });
+      });
     });
   });
-});
 
 
 router.post('/login', (req, res) => {
